@@ -37,23 +37,20 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Debug Image Tag (optional)
-        run: echo "Image Tag: $IMAGE_NAME"
+        run: echo "Image Tag: ${{ env.IMAGE_NAME }}"
 
       - name: Build and Push Docker Image
         run: |
-          docker build -t $IMAGE_NAME .
-          docker push $IMAGE_NAME
+          docker build -t ${{ env.IMAGE_NAME }} .
+          docker push ${{ env.IMAGE_NAME }}
 
       - name: Update Kubeconfig
         run: |
           aws eks update-kubeconfig \
-            --region $AWS_REGION \
-            --name $EKS_CLUSTER_NAME
+            --region ${{ env.AWS_REGION }} \
+            --name ${{ env.EKS_CLUSTER_NAME }}
 
       - name: Set Image in Deployment YAML
         run: |
-          sed -i "s|image:.*|image: $IMAGE_NAME|" deployment.yaml
+          sed -i "s|image:.*|image: ${{ env.IMA*
 
-      - name: Deploy to EKS
-        run: |
-          kubectl apply -f deployment.yaml

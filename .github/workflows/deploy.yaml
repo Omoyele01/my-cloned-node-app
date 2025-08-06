@@ -39,25 +39,23 @@ jobs:
         env:
           IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/my-node-app:latest
         run: |
-          echo "Building Docker image: $IMAGE_NAME"
+          echo "Image Name: $IMAGE_NAME"
           docker build -t $IMAGE_NAME .
           docker push $IMAGE_NAME
 
-      - name: Update Kubeconfig
+      - name: Update kubeconfig
         run: |
           aws eks update-kubeconfig \
             --region ${{ env.AWS_REGION }} \
             --name ${{ env.EKS_CLUSTER_NAME }}
 
-      - name: Set Image in Deployment YAML
+      - name: Update deployment.yaml with new image
         env:
           IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/my-node-app:latest
         run: |
-          sed -i "s|image:.*|image: $IMAGE_NAME|" deployment.yaml
-
-      - name: Debug Updated YAML (optional)
-        run: cat deployment.yaml
+          sed -i'' -e "s|image:.*|image: $IMAGE_NAME|" deployment.yaml
 
       - name: Deploy to EKS
         run: |
           kubectl apply -f deployment.yaml
+

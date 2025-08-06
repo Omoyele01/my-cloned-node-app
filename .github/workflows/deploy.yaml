@@ -53,10 +53,16 @@ jobs:
         env:
           IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/my-node-app:latest
         run: |
-          echo "IMAGE_NAME='$IMAGE_NAME'"
-          sed -i "s|image: .*|image: \"$IMAGE_NAME\"|" deployment.yaml
+          # Clean IMAGE_NAME to remove unwanted characters
+          CLEAN_IMAGE_NAME=$(echo "$IMAGE_NAME" | tr -d '\n' | tr -d '\r' | xargs)
+          
+          echo "Clean Image Name: '$CLEAN_IMAGE_NAME'"
+
+          # Replace the image in deployment.yaml with cleaned image name
+          sed -i "s|image: .*|image: $CLEAN_IMAGE_NAME|" deployment.yaml
 
       - name: Deploy to EKS
         run: |
           kubectl apply -f deployment.yaml
+
 

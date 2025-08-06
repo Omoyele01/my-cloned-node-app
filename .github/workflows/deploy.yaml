@@ -15,8 +15,8 @@ env:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
     name: Build, Push and Deploy
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
@@ -39,7 +39,7 @@ jobs:
         env:
           IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/my-node-app:latest
         run: |
-          echo "Image Name: $IMAGE_NAME"
+          echo "Building Docker image: $IMAGE_NAME"
           docker build -t $IMAGE_NAME .
           docker push $IMAGE_NAME
 
@@ -55,7 +55,9 @@ jobs:
         run: |
           sed -i "s|image:.*|image: $IMAGE_NAME|" deployment.yaml
 
+      - name: Debug Updated YAML (optional)
+        run: cat deployment.yaml
+
       - name: Deploy to EKS
         run: |
           kubectl apply -f deployment.yaml
-

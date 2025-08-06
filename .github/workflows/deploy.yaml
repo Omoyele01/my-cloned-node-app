@@ -45,4 +45,15 @@ jobs:
           docker push ${{ env.IMAGE_NAME }}
 
       - name: Update Kubeconfig
+        run: |
+          aws eks update-kubeconfig \
+            --region ${{ env.AWS_REGION }} \
+            --name ${{ env.EKS_CLUSTER_NAME }}
 
+      - name: Set Image in Deployment YAML
+        run: |
+          sed -i "s|image:.*|image: ${{ env.IMAGE_NAME }}|" deployment.yaml
+
+      - name: Deploy to EKS
+        run: |
+          kubectl apply -f deployment.yaml

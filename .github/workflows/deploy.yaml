@@ -28,32 +28,5 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
+          aws-region: ${{ e
 
-      - name: Login to DockerHub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Debug Image Tag (optional)
-        run: echo "Image Tag: ${{ env.IMAGE_NAME }}"
-
-      - name: Build and Push Docker Image
-        run: |
-          docker build -t ${{ env.IMAGE_NAME }} .
-          docker push ${{ env.IMAGE_NAME }}
-
-      - name: Update Kubeconfig
-        run: |
-          aws eks update-kubeconfig \
-            --region ${{ env.AWS_REGION }} \
-            --name ${{ env.EKS_CLUSTER_NAME }}
-
-      - name: Set Image in Deployment YAML
-        run: |
-          sed -i "s|image:.*|image: ${{ env.IMAGE_NAME }}|" deployment.yaml
-
-      - name: Deploy to EKS
-        run: |
-          kubectl apply -f deployment.yaml
